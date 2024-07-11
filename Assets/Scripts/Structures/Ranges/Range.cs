@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Structures.Ranges.Base
+namespace Structures.Ranges
 {
     [Serializable]
     public class Range<T> : IRange<T>
