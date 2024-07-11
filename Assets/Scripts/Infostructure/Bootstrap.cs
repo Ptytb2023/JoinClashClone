@@ -11,7 +11,7 @@ namespace Infostructure
 
         private void OnEnable()
         {
-            _gameStateMachine.Enter<EnterGymStateSo>();
+            _gameStateMachine.Enter<EnterLevelState>();
         }
     }
 }

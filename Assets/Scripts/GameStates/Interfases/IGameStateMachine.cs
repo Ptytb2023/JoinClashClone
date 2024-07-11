@@ -1,4 +1,4 @@
-﻿using GameStates.Base;
+﻿using GameStates.Interface;
 
 namespace GameStates.GameStateMachine
 {
