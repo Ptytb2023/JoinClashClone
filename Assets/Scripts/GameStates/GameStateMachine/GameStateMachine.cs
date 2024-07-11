@@ -1,7 +1,8 @@
-﻿using System;
+﻿using GameStates.Base;
+using System;
 using System.Collections.Generic;
 
-namespace GameStates.Base
+namespace GameStates.GameStateMachine
 {
 	public class GameStateMachine : IGameStateMachine
 	{

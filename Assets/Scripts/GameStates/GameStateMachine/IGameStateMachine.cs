@@ -1,4 +1,6 @@
-﻿namespace GameStates.Base
+﻿using GameStates.Base;
+
+namespace GameStates.GameStateMachine
 {
 	public interface IGameStateMachine
 	{
