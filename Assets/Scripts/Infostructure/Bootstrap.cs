@@ -2,16 +2,22 @@ using UnityEngine;
 
 using GameStates.States;
 using GameStates.GameStateMachine;
+using Zenject;
 
 namespace Infostructure
 {
     public class Bootstrap : MonoBehaviour
     {
-        [SerializeField] private GameStateMachineSo _gameStateMachine;
+        private IGameStateMachine _gameStateMachine;
 
-        private void OnEnable()
+        [Inject]
+        private void Construct(IGameStateMachine gameStateMachine) =>
+            _gameStateMachine = gameStateMachine;
+
+        private void Start()
         {
-            _gameStateMachine.Enter<EnterLevelState>();
+            _gameStateMachine.Enter<BootstarpState>();
         }
+
     }
 }
