@@ -10,28 +10,19 @@ namespace Menu
     {
         [SerializeField] private InputTouchPanel _input;
 
-
         private IGameStateMachine _gameStateMachine;
 
         [Inject]
-        private void Construct(IGameStateMachine gameStateMachine)
-        {
+        private void Construct(IGameStateMachine gameStateMachine) => 
             _gameStateMachine = gameStateMachine;
-        }
 
-        private void OnEnable()
-        {
+        private void OnEnable() => 
             _input.Begun += stx => EnterGamplayState();
-        }
 
-        private void OnDisable()
-        {
+        private void OnDisable() => 
             _input.Begun -= stx => EnterGamplayState();
-        }
 
-        private void EnterGamplayState()
-        {
+        private void EnterGamplayState() => 
             _gameStateMachine.Enter<GameplayState>();
-        }
     }
 }

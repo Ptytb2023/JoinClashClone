@@ -7,17 +7,24 @@ namespace Input.Touches
 {
 	public class InputTouchPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	{
-		private Coroutine _holdingRoutine;
+        private Coroutine _releasedRoutine;
+        private Coroutine _holdingRoutine;
 		
 		public event Action<Touch> Begun;
 		public event Action<Touch> Holding;
 		public event Action<Touch> Ended;
+		public event Action<Touch> Released;
 		
 		public void OnPointerDown(PointerEventData eventData)
 		{
-			Begun?.Invoke(new Touch());
+            if (_releasedRoutine != null)
+                StopCoroutine(_releasedRoutine);
+
+            Begun?.Invoke(new Touch());
 			_holdingRoutine = StartCoroutine(ProcessHoldingInput());
-		}
+
+            _releasedRoutine = StartCoroutine(ProcessReleasedInput());
+        }
 
 		public void OnPointerUp(PointerEventData eventData)
 		{
@@ -27,12 +34,23 @@ namespace Input.Touches
 
 		private IEnumerator ProcessHoldingInput()
 		{
-			while (true)
+			while (enabled)
 			{
 				Holding?.Invoke(new Touch());
 				
 				yield return null;
 			}
 		}
-	}
+
+        private IEnumerator ProcessReleasedInput()
+        {
+            while (enabled)
+            {
+                Released?.Invoke(new Touch());
+
+                yield return null;
+            }
+        }
+
+    }
 }

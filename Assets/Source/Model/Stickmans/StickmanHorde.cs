@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Model.Stickmans
+{
+    public class StickmanHorde
+    {
+        private readonly HashSet<StickmanMovement> _stickmans;
+
+        public StickmanHorde(StickmanMovement firstStickman) => 
+            _stickmans = new HashSet<StickmanMovement> { firstStickman };
+
+        public event Action<StickmanMovement> Added;
+        public event Action<StickmanMovement> Removed;
+
+        public IEnumerable<StickmanMovement> Stickmans => _stickmans;
+
+        public void Add(StickmanMovement stickman)
+        {
+            stickman.UpdateMovingRight();
+            _stickmans.Add(stickman);
+            Added?.Invoke(stickman);
+        }
+
+        public void Remove(StickmanMovement stickman)
+        {
+            _stickmans.Remove(stickman);
+            Removed?.Invoke(stickman);
+        }
+
+        public IEnumerable<Stickman> Entities => _stickmans.Select(x => x.Model);
+    }
+}
