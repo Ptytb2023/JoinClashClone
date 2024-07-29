@@ -1,20 +1,19 @@
 ﻿using Model.StateMachine;
-using Model.Stickmans;
-using StateMachine.States.Group;
-using UnityEngine;
+using Model.Stickmen;
 
-namespace StateMachine.States.Movement
+namespace Model.Sources.Model.StateMachine.States.Movement
 {
-    public class StickmanRunState : StickmanMoveStatesGroup
-    {
-        public StickmanRunState(StickmanMovement movement,Animator animator, int animationHash)
-            : base(movement, animator, animationHash) { }
+	public class StickmanRunState : StickmanMoveStatesGroup
+	{
+		public StickmanRunState(StickmanMovement movement, int animationHash) 
+			: base(movement, animationHash) { }
 
-        public override void CheckTransitions(StickmanStateMachine stateMachine)
-        {
-            if (IsRunning == false)
-                stateMachine.Enter<StickmanIdleState>();
-        }
-
-    }
+		protected override void CheckTransitions(StickmanStateMachine stateMachine)
+		{
+			base.CheckTransitions(stateMachine);
+			
+			if (IsRunning == false)
+				stateMachine.Enter<StickmanIdleState>();
+		}
+	}
 }

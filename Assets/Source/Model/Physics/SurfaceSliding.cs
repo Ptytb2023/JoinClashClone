@@ -3,23 +3,28 @@ using UnityEngine;
 
 namespace Model.Physics
 {
-    public class SurfaceSliding : IColidable
-    {
-        private Vector3 _surfaceNormal;
-        public bool IsGrounded { get; private set; }
+	public class SurfaceSliding : ICollidable
+	{
+		private Vector3 _surfaceNormal;
 
-        public Vector3 DirectionAlongSurface(Vector3 originalDirection) =>
-            Vector3.ProjectOnPlane(originalDirection, _surfaceNormal);
+		public SurfaceSliding()
+		{ }
+
+        public Vector3 DirectionAlongSurface(Vector3 originalDirection) => 
+			Vector3.ProjectOnPlane(originalDirection, _surfaceNormal);
 
         public void OnCollisionEnter(Collision collision)
-        {
-            _surfaceNormal = collision.contacts[0].normal;
-            IsGrounded = false;
-        }
+		{
+			if (collision.gameObject.TryGetComponent(out IGrounded grounded))
+				_surfaceNormal = collision.contacts[0].normal;
+		}
 
-        public void OnCollisionExit(Collision collision) =>
-            IsGrounded = true;
+		public void OnCollisionStay(Collision collision)
+		{
+		}
 
-        public void OnCollisionStay(Collision collision) { }
-    }
+		public void OnCollisionExit(Collision collision)
+		{
+		}
+	}
 }

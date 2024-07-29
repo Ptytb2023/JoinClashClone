@@ -1,7 +1,7 @@
-﻿namespace Model.Messaging
+﻿namespace Model
 {
-    public interface ITickable
-    {
-        public void Tick(float deltaTime);
-    }
+	public interface ITickable
+	{
+		void Tick(float deltaTime);
+	}
 }

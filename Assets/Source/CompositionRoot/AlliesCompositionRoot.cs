@@ -4,6 +4,16 @@ using System.Linq;
 using UnityEngine;
 using CopositionRoot.Base;
 using UnityEditor.Animations;
+using View.Sources.View.Broadcasters;
+using Sources.View;
+using Model.Stickmans;
+using Model.Components;
+using Model.Physics;
+using Sources.View.Extensions;
+using CompositionRoot.Extensions;
+using Model.StateMachine;
+using Model.StateMachine.States;
+using StateMachine.States.Movement;
 
 namespace CompositionRoot
 {
@@ -66,21 +76,17 @@ namespace CompositionRoot
                 .RequireComponent<Animator>(out var animator)
                 .BindController(_controller)
                 .AddComponent<TickBroadcaster>()
-                .InitializeAs(new StickmanStateMachine(animator, new StickmanState[]
+                .InitializeAs(new StickmanStateMachine( new StickmanState[]
                 {
-                    new StickmanWaitState(StickmanAnimatorParameters.Idle),
                     new StickmanIdleState(movement, StickmanAnimatorParameters.Idle),
                     new StickmanRunState(movement, StickmanAnimatorParameters.IsRunning),
-                    new StickmanChargeState(model, _enemiesRoot.Entities, _chargePreferences, StickmanAnimatorParameters.Charge),
-                    new StickmanAttackState(model, _enemiesRoot.Entities, _attackPreferences, StickmanAnimatorParameters.IsPunching),
-                    new StickmanDeathState(StickmanAnimatorParameters.IsDead),
-                    new StickmanVictoryState(StickmanAnimatorParameters.Won)
                 }), out var stateMachine)
                 .ContinueWith(stateMachine.Enter<StickmanIdleState>)
                 .Append(_pickTriggerZonePrefab)
                 .GoToParent()
                 .AddComponent<Trigger>()
                 .Between<StickmanMovement, (StickmanHorde, StickmanMovement)>(movement, handler => handler.Item1.Add(movement))
+            
                 .OnTrigger(_pathFinishTrigger)
                 .Do(stateMachine.Enter<StickmanChargeState>)
                 .ContinueWith(() => model.Died += stateMachine.Enter<StickmanDeathState>);

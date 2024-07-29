@@ -1,62 +1,47 @@
-﻿using Model.Messaging;
-using Model.StateMachine.States;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 
 namespace Model.StateMachine
 {
-    public class StickmanStateMachine : ITickable
-    {
-        private Dictionary<Type, StickmanState> _states;
-        private StickmanState _currentState = new StickmanState.Empty();
+	public class StickmanStateMachine : ITickable
+	{
+		private readonly Animator _animator;
+		
+		private readonly Dictionary<Type, StickmanState> _states = new Dictionary<Type, StickmanState>();
+		private StickmanState _currentState = new StickmanState.None();
 
-        public StickmanStateMachine(IEnumerable<StickmanState> states)
-        {
-            _states = new Dictionary<Type, StickmanState>();
-            Initialize(states);
-        }
+		public StickmanStateMachine(Animator animator, IEnumerable<StickmanState> states)
+		{
+			_animator = animator;
+			
+			foreach (StickmanState stickmanState in states)
+			{
+				Type key = stickmanState.GetType();
 
-        public void Enter<TState>() where TState : StickmanState
-        {
-            Type stateType = typeof(TState);
+				if (_states.ContainsKey(key))
+					throw new InvalidOperationException($"Trying to register duplicate state {key}");
+				
+				_states.Add(key, stickmanState);
+			}
+		}
 
-            if (_states.TryGetValue(stateType, out StickmanState state) == false)
-                throw new InvalidOperationException($"{stateType} is not registered in {stateType}");
+		public void Enter<TState>() where TState : StickmanState
+		{
+			if (_states.TryGetValue(typeof(TState), out var newState) == false)
+				throw new InvalidOperationException($"Trying to enter unregistered state {nameof(TState)}");
 
-            if (_currentState == state)
-                throw new ArgumentOutOfRangeException($"{state} allredy is enabel");
+			if (_currentState == newState)
+				return;
+			
+			_currentState.Exit(_animator, this);
+			_currentState = newState;
+			_currentState.Enter(_animator, this);
+		}
 
-            ChangeState(state);
-        }
-
-        public void Tick(float deltaTime)
-        {
-            _currentState.Tick(deltaTime);
-
-            CheckTransitions();
-        }
-
-        private void CheckTransitions() =>
-           _currentState.CheckTransitions(this);
-
-        private void ChangeState(StickmanState state)
-        {
-            _currentState.Exit();
-            _currentState = state;
-            _currentState.Enter();
-        }
-
-        private void Initialize(IEnumerable<StickmanState> states)
-        {
-            foreach (var (state, type) in states.Select(state => (state, state.GetType())))
-            {
-                if (_states.ContainsKey(type))
-                    throw new InvalidOperationException
-                        ($"{type} allredy contains {nameof(type.FullName)} state");
-
-                _states.Add(type, state);
-            }
-        }
-    }
+		public void Tick(float deltaTime)
+		{
+			_currentState.Tick(deltaTime, this);
+		}
+	}
 }
