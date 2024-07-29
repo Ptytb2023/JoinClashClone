@@ -1,4 +1,4 @@
-﻿using Model.Messaging;
+﻿using Model;
 using UnityEngine;
 
 namespace View.Sources.View.Broadcasters
@@ -16,6 +16,5 @@ namespace View.Sources.View.Broadcasters
 
         private void Update() => 
 			_tickable.Tick(Time.deltaTime);
-
     }
 }

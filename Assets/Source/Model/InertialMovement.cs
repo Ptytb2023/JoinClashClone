@@ -21,9 +21,7 @@ namespace Model
 			Acceleration = Mathf.Clamp(Acceleration, 0.0f, _maxSpeed);
 		}
 
-		public void Slowdown(float deltaTime)
-		{
+        public void Slowdown(float deltaTime) => 
 			Acceleration -= Acceleration * (deltaTime / _accelerationTime);
-		}
-	}
+    }
 }

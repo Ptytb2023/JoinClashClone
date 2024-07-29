@@ -10,27 +10,21 @@ namespace View.Sources.View.Broadcasters
 		private readonly Dictionary<PhysicsTransformableView, Action> _contextHandlers = new Dictionary<PhysicsTransformableView, Action>();
 		private readonly List<Action> _listeners = new List<Action>();
 
-		public void Subscribe(PhysicsTransformableView context, Action handler)
-		{
-			_contextHandlers.Add(context, handler);			
-		}
+        public void Subscribe(PhysicsTransformableView context, Action handler) =>
+			_contextHandlers.Add(context, handler);
 
-		public void Unsubscribe(PhysicsTransformableView context)
-		{
+        public void Unsubscribe(PhysicsTransformableView context) =>
 			_contextHandlers.Remove(context);
-		}
 
-		public void ReactOnce(Action listener)
-		{
+        public void ReactOnce(Action listener) => 
 			_listeners.Add(listener);
-		}
 
-		private void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other)
 		{
 			if (other.TryGetComponent(out PhysicsTransformableView view) == false)
 				return;
 
-			if (_contextHandlers.TryGetValue(view, out var handler) == false)
+            if (_contextHandlers.TryGetValue(view, out Action handler) == false)
 				return;
 			
 			handler.Invoke();

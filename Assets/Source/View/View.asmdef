@@ -2,7 +2,8 @@
     "name": "View",
     "rootNamespace": "View",
     "references": [
-        "Model"
+        "Model",
+        "Cinemachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

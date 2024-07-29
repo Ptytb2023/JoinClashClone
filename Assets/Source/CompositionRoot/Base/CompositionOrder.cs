@@ -1,27 +1,26 @@
-﻿using CopositionRoot.Base;
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace CompositionRoot.Base
+namespace Sources.CompositeRoot.Base
 {
-    public class CompositionOrder : MonoBehaviour
-    {
-        [SerializeField] private BaseCompositionRoot[] _order = Array.Empty<BaseCompositionRoot>();
+	public class CompositionOrder : MonoBehaviour
+	{
+		[SerializeField] private CompositionRoot[] _order = Array.Empty<CompositionRoot>();
 
-        private void OnValidate()
-        {
-            foreach (BaseCompositionRoot compositionRoot in _order)
-                if (compositionRoot != null)
-                    compositionRoot.enabled = false;
-        }
+		private void OnValidate()
+		{
+			foreach (CompositionRoot compositionRoot in _order)
+				if (compositionRoot != null)
+					compositionRoot.enabled = false;
+		}
 
-        private void Awake()
-        {
-            foreach (BaseCompositionRoot compositionRoot in _order)
-            {
-                compositionRoot.Compose();
-                compositionRoot.enabled = true;
-            }
-        }
-    }
+		private void Awake()
+		{
+			foreach (CompositionRoot compositionRoot in _order)
+			{
+				compositionRoot.Compose();
+				compositionRoot.enabled = true;
+			}
+		}
+	}
 }

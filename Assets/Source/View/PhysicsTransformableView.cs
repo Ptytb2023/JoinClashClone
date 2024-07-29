@@ -1,5 +1,4 @@
 ﻿using Model.Transformables;
-using Model.Transorable;
 using Sources.View.Extensions;
 using UnityEngine;
 
@@ -10,11 +9,7 @@ namespace Sources.View
 		private Transformable _model;
 		private Rigidbody _rigidbody;
 
-        public Vector3 Position => _rigidbody.position;
-
-        public Quaternion Rotation => _rigidbody.rotation;
-
-        public GameObject Initialize(Transformable model)
+		public GameObject Initialize(Transformable model)
 		{
 			_rigidbody = gameObject.RequireComponent<Rigidbody>();
 			_model = model;
@@ -23,13 +18,23 @@ namespace Sources.View
 			return gameObject;
 		}
 
-        public void Move(Vector3 position) =>
+		public void Move(Vector3 position)
+		{
 			_rigidbody.MovePosition(position);
+		}
 
-        public void Rotate(Quaternion rotation) 
-			=> _rigidbody.MoveRotation(rotation);
+		public void Rotate(Quaternion rotation)
+		{
+			_rigidbody.MoveRotation(rotation);
+		}
 
-        public void LookAt(Vector3 from, Vector3 target) 
-			=> _rigidbody.transform.LookAt(target);
+		public void LookAt(Vector3 from, Vector3 target)
+		{
+			_rigidbody.transform.LookAt(target);
+		}
+
+		public Vector3 Position => _rigidbody.position;
+
+		public Quaternion Rotation => _rigidbody.rotation;
 	}
 }

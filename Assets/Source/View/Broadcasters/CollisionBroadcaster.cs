@@ -5,18 +5,18 @@ namespace View.Sources.View.Broadcasters
 {
 	public class CollisionBroadcaster : MonoBehaviour
 	{
-        private IColidable _model;
+		private ICollidable _model;
 
-		public GameObject Initialize(IColidable model)
+		public GameObject Initialize(ICollidable model)
 		{
 			_model = model;
 			return gameObject;
 		}
 
-        private void OnCollisionEnter(Collision other) => 
+        private void OnCollisionEnter(Collision other) =>
 			_model.OnCollisionEnter(other);
 
-        private void OnCollisionStay(Collision other) => 
+        private void OnCollisionStay(Collision other) =>
 			_model.OnCollisionStay(other);
 
         private void OnCollisionExit(Collision other) => 

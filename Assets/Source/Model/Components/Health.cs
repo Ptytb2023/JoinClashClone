@@ -5,11 +5,9 @@ namespace Model.Components
 {
 	public class Health
 	{
-		public Health(float value)
-		{
+        public Health(float value) => 
 			Value = value;
-		}
-		
+        
 		public float Value { get; private set; }
 
 		public void TakeDamage(float damage)
