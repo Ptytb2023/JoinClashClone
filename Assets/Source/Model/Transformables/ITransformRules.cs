@@ -18,20 +18,14 @@ namespace Model.Transformables
 			public Vector3 Position { get; private set; }
 			public Quaternion Rotation { get; private set; }
 
-			public void Move(Vector3 position)
-			{
+            public void Move(Vector3 position) => 
 				Position = position;
-			}
 
-			public void Rotate(Quaternion rotation)
-			{
+            public void Rotate(Quaternion rotation) => 
 				Rotation = rotation;
-			}
 
-			public void LookAt(Vector3 from, Vector3 target)
-			{
+            public void LookAt(Vector3 from, Vector3 target) => 
 				Rotation = Quaternion.LookRotation(target - from);
-			}
-		}
+        }
 	}
 }

@@ -29,13 +29,11 @@ namespace Model.Stickmen
 		public float Acceleration => _inertialMovement.Acceleration;
 		
 		private float DistanceToBound => _distanceBetweenBounds / 2.0f;
-		
-		public void StartMovingRight()
-		{
-			_startMovePosition = Model.Position;
-		}
 
-		public void MoveRight(float axis)
+        public void StartMovingRight() =>
+			_startMovePosition = Model.Position;
+
+        public void MoveRight(float axis)
 		{
 			Vector3 position = new Vector3
 			{

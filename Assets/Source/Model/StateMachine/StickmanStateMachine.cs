@@ -9,24 +9,15 @@ namespace Model.StateMachine
 		private readonly Animator _animator;
 		
 		private readonly Dictionary<Type, StickmanState> _states = new Dictionary<Type, StickmanState>();
-		private StickmanState _currentState = new StickmanState.None();
+		private StickmanState _currentState = new StickmanState.Empty();
 
 		public StickmanStateMachine(Animator animator, IEnumerable<StickmanState> states)
-		{
-			_animator = animator;
-			
-			foreach (StickmanState stickmanState in states)
-			{
-				Type key = stickmanState.GetType();
+        {
+            _animator = animator;
+            Initilize(states);
+        }
 
-				if (_states.ContainsKey(key))
-					throw new InvalidOperationException($"Trying to register duplicate state {key}");
-				
-				_states.Add(key, stickmanState);
-			}
-		}
-
-		public void Enter<TState>() where TState : StickmanState
+        public void Enter<TState>() where TState : StickmanState
 		{
 			if (_states.TryGetValue(typeof(TState), out var newState) == false)
 				throw new InvalidOperationException($"Trying to enter unregistered state {nameof(TState)}");
@@ -39,9 +30,21 @@ namespace Model.StateMachine
 			_currentState.Enter(_animator, this);
 		}
 
-		public void Tick(float deltaTime)
-		{
-			_currentState.Tick(deltaTime, this);
-		}
-	}
+        public void Tick(float deltaTime) => 
+            _currentState.Tick(deltaTime, this);
+
+        private void Initilize(IEnumerable<StickmanState> states)
+        {
+            foreach (StickmanState stickmanState in states)
+            {
+                Type key = stickmanState.GetType();
+
+                if (_states.ContainsKey(key))
+                    throw new InvalidOperationException($"Trying to register duplicate state {key}");
+
+                _states.Add(key, stickmanState);
+            }
+        }
+
+    }
 }

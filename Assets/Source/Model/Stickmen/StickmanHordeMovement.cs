@@ -6,13 +6,11 @@ namespace Model.Stickmen
 	public class StickmanHordeMovement
 	{
 		private readonly StickmanHorde _horde;
-		
-		public StickmanHordeMovement(StickmanHorde horde)
-		{
-			_horde = horde;
-		}
 
-		public void Accelerate(float deltaTime)
+        public StickmanHordeMovement(StickmanHorde horde) =>
+			_horde = horde;
+
+        public void Accelerate(float deltaTime)
 		{
 			foreach (StickmanMovement stickman in _horde.Stickmans)
 				stickman.Accelerate(deltaTime);
@@ -42,9 +40,8 @@ namespace Model.Stickmen
 				stickman.MoveRight(axis);
 		}
 
-		private bool CanMove(float axis)
-		{
-			return _horde.Stickmans.Any(x => x.OnRightBound && axis > 0.0f || x.OnLeftBound && axis < 0.0f) == false;
-		}
-	}
+        private bool CanMove(float axis) =>
+			_horde.Stickmans.Any(x => x.OnRightBound && axis > 0.0f 
+			|| x.OnLeftBound && axis < 0.0f) == false;
+    }
 }

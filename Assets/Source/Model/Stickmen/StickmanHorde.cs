@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Messaging;
-using UnityEngine;
 
 namespace Model.Stickmen
 {
@@ -10,15 +8,14 @@ namespace Model.Stickmen
 	{
 		private readonly HashSet<StickmanMovement> _stickmans;
 
-		public StickmanHorde(StickmanMovement firstStickman)
-		{
-			_stickmans = new HashSet<StickmanMovement> {firstStickman};
-		}
+        public StickmanHorde(StickmanMovement firstStickman) => 
+			_stickmans = new HashSet<StickmanMovement> { firstStickman };
 
-		public event Action<StickmanMovement> Added;
+        public event Action<StickmanMovement> Added;
 		public event Action<StickmanMovement> Removed; 
 
-		public IEnumerable<StickmanMovement> Stickmans => _stickmans;
+		public IEnumerable<StickmanMovement> Stickmans => 
+			_stickmans;
 
 		public void Add(StickmanMovement stickman)
 		{
@@ -33,6 +30,7 @@ namespace Model.Stickmen
 			Removed?.Invoke(stickman);
 		}
 
-		public IEnumerable<Stickman> Entities => _stickmans.Select(x => x.Model);
+		public IEnumerable<Stickman> Entities =>
+			_stickmans.Select(x => x.Model);
 	}
 }
