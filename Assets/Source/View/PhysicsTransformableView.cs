@@ -18,22 +18,16 @@ namespace Sources.View
 			return gameObject;
 		}
 
-		public void Move(Vector3 position)
-		{
+        public void Move(Vector3 position) =>
 			_rigidbody.MovePosition(position);
-		}
 
-		public void Rotate(Quaternion rotation)
-		{
+        public void Rotate(Quaternion rotation) => 
 			_rigidbody.MoveRotation(rotation);
-		}
 
-		public void LookAt(Vector3 from, Vector3 target)
-		{
+        public void LookAt(Vector3 from, Vector3 target) => 
 			_rigidbody.transform.LookAt(target);
-		}
 
-		public Vector3 Position => _rigidbody.position;
+        public Vector3 Position => _rigidbody.position;
 
 		public Quaternion Rotation => _rigidbody.rotation;
 	}
