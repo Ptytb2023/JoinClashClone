@@ -6,52 +6,62 @@ using Input.Stickmen;
 using Input.Touches;
 using Model.Stickmen;
 using Sources.CompositeRoot.Base;
+using Sources.CompositeRoot.Extensions;
 using Sources.View;
 using UnityEngine;
 using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-	public class HordeCompositionRoot : CompositionRoot
-	{
-		[Header("Input")]
-		[SerializeField] private InputSwipePanel _swipePanel;
-		[SerializeField] private InputTouchPanel _touchPanel;
-		[SerializeField] private Camera _camera;
+    public class HordeCompositionRoot : CompositionRoot
+    {
+        [Header("Input")]
+        [SerializeField] private InputSwipePanel _swipePanel;
+        [SerializeField] private InputTouchPanel _touchPanel;
+        [SerializeField] private Camera _camera;
 
-		[Header("Roots")]
-		[SerializeField] private AlliesCompositionRoot _allies;
+        [Header("Roots")]
+        [SerializeField] private AlliesCompositionRoot _allies;
 
-		[Header("Camera")]
-		[SerializeField] private CinemachineTargetGroup _targetGroup;
+        [Header("Camera")]
+        [SerializeField] private CinemachineTargetGroup _targetGroup;
 
-		private HordeInputRouter _inputRouter;
-		private HordeViewChanger _viewChanger;
-		private StickmanHorde _horde;
+        [Header("Scene")]
+        [SerializeField] private EventTrigger _pathFinishTrigger;
 
-		public override void Compose()
-		{
-			_horde = new StickmanHorde(_allies.Player);
-			var hordeMovement = new StickmanHordeMovement(_horde);
-			_inputRouter = new HordeInputRouter(_swipePanel, _touchPanel, hordeMovement, _camera);
-			_viewChanger = new HordeViewChanger(_horde, _targetGroup, _allies.PlacedEntities).Initialize();
-		}
+        private HordeInputRouter _inputRouter;
+        private HordeViewChanger _viewChanger;
+        private StickmanHorde _horde;
 
-		public IEnumerable<Stickman> Entities()
-		{
-			return _horde.Entities.Where(x => x.IsDead == false);
-		}
+        public override void Compose()
+        {
+            _horde = new StickmanHorde(_allies.Player);
+            var hordeMovement = new StickmanHordeMovement(_horde);
+            _inputRouter = new HordeInputRouter(_swipePanel, _touchPanel, hordeMovement, _camera);
+            _viewChanger = new HordeViewChanger(_horde, _targetGroup, _allies.PlacedEntities).Initialize();
 
-		private void OnEnable()
-		{
-			_inputRouter.OnEnable();
-			_viewChanger.OnEnable();
-		}
+            foreach (var (movement, view) in _allies.PlacedEntities)
+            {
+                view
+                    .GameObject()
+                    .OnTrigger(_pathFinishTrigger)
+                    .Do(() => _horde.Remove(movement));
+            }
+        }
 
-		private void OnDisable()
-		{
-			_inputRouter.OnDisable();
-			_viewChanger.OnDisable();
-		}
-	}
+        public IEnumerable<Stickman> Entities() =>
+            _horde.Entities.Where(x => x.IsDead == false);
+
+        private void OnEnable()
+        {
+            _inputRouter.OnEnable();
+            _viewChanger.OnEnable();
+        }
+
+        private void OnDisable()
+        {
+            _inputRouter.OnDisable();
+            _viewChanger.OnDisable();
+        }
+    }
 }

@@ -16,64 +16,72 @@ using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-	public class EnemiesCompositionRoot : CompositionRoot
-	{
-		[Header("Preferences")] 
-		[SerializeField] private float _health;
-		[SerializeField] private StickmanChargeState.Preferences _chargePreferences;
-		[SerializeField] private StickmanAttackState.Preferences _attackPreferences;
-		
-		[Header("Roots")] 
-		[SerializeField] private HordeCompositionRoot _hordeRoot;
-		
-		[Header("Scene Events")]
-		[SerializeField] private EventTrigger _pathFinishTrigger;
+    public class EnemiesCompositionRoot : CompositionRoot
+    {
+        [Header("Preferences")]
+        [SerializeField] private float _health;
+        [SerializeField] private StickmanChargeState.Preferences _chargePreferences;
+        [SerializeField] private StickmanAttackState.Preferences _attackPreferences;
 
-		[Header("Used assets")]
-		[SerializeField] private AnimatorController _controller;
-		
-		[Header("Views")]
-		[SerializeField] private PhysicsTransformableView[] _enemies = Array.Empty<PhysicsTransformableView>();
+        [Header("Roots")]
+        [SerializeField] private HordeCompositionRoot _hordeRoot;
 
-		private List<Stickman> _entities;
+        [Header("Scene Events")]
+        [SerializeField] private EventTrigger _pathFinishTrigger;
 
-		public override void Compose()
-		{
-			_entities = new List<Stickman>(_enemies.Length);
-			
-			foreach (PhysicsTransformableView view in _enemies)
-				_entities.Add(Compose(view));
-		}
+        [Header("Audio")]
+        [SerializeField] private AudioClip _deathSound;
 
-		public IEnumerable<Stickman> Entities()
-		{
-			return _entities.Where(x => x.IsDead == false);
-		}
-		
-		private Stickman Compose(PhysicsTransformableView view)
-		{
-			var health = new Health(_health);
-			var model = new Stickman(health, view.transform.position, view.transform.rotation);
+        [Header("Used assets")]
+        [SerializeField] private AnimatorController _controller;
 
-			view
-				.Initialize(model)
-				.RequireComponent<Animator>(out var animator)
-				.BindController(_controller)
-				.AddComponent<TickBroadcaster>()
-				.InitializeAs(new StickmanStateMachine(animator, new StickmanState[]
-				{
-					new StickmanWaitState(StickmanAnimatorParameters.Idle),
-					new StickmanChargeState(model, _hordeRoot.Entities, _chargePreferences, StickmanAnimatorParameters.Charge),
-					new StickmanAttackState(model, _hordeRoot.Entities, _attackPreferences , StickmanAnimatorParameters.IsPunching),
-					new StickmanDeathState(StickmanAnimatorParameters.IsDead),
-					new StickmanVictoryState(StickmanAnimatorParameters.Won)
-				}), out var stateMachine)
-				.ContinueWith(stateMachine.Enter<StickmanWaitState>)
-				.OnTrigger(_pathFinishTrigger)
-				.ReactOnce(stateMachine.Enter<StickmanChargeState>)
-				.ContinueWith(() => model.Died += stateMachine.Enter<StickmanDeathState>);
+        [Header("Views")]
+        [SerializeField] private PhysicsTransformableView[] _enemies = Array.Empty<PhysicsTransformableView>();
 
-			return model;
-		}
-	}
+        private List<Stickman> _entities;
+
+        public override void Compose()
+        {
+            _entities = new List<Stickman>(_enemies.Length);
+
+            foreach (PhysicsTransformableView view in _enemies)
+                _entities.Add(Compose(view));
+        }
+
+        public IEnumerable<Stickman> Entities()
+        {
+            return _entities.Where(x => x.IsDead == false);
+        }
+
+        private Stickman Compose(PhysicsTransformableView view)
+        {
+            var health = new Health(_health);
+            var model = new Stickman(health, view.transform.position, view.transform.rotation);
+
+            view
+                .Initialize(model)
+                .RequireComponent<Animator>(out var animator)
+                .BindController(_controller)
+                .RequireComponent<AudioSource>(out var audioSource)
+                .GameObject()
+                .AddComponent<TickBroadcaster>()
+                .InitializeAs(new StickmanStateMachine(animator, CreatStates(model, audioSource)), out var stateMachine)
+                .ContinueWith(stateMachine.Enter<StickmanWaitState>)
+                .OnTrigger(_pathFinishTrigger)
+                .ReactOnce(stateMachine.Enter<StickmanChargeState>)
+                .ContinueWith(() => model.Died += stateMachine.Enter<StickmanDeathState>);
+
+            return model;
+        }
+
+        private StickmanState[] CreatStates(Stickman model, AudioSource audioSource) =>
+            new StickmanState[]
+                            {
+                    new StickmanWaitState(StickmanAnimatorParameters.Idle),
+                    new StickmanChargeState(model, _hordeRoot.Entities, _chargePreferences, StickmanAnimatorParameters.Charge),
+                    new StickmanAttackState(model, _hordeRoot.Entities, _attackPreferences ,audioSource, StickmanAnimatorParameters.IsPunching),
+                    new StickmanDeathState(audioSource, _deathSound, StickmanAnimatorParameters.IsDead),
+                    new StickmanVictoryState(StickmanAnimatorParameters.Won)
+                            };
+    }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Model.StateMachine;
 using Model.Stickmen;
 using Model.Timers;
+using UnityEngine;
 
 namespace Model.Sources.Model.StateMachine.States.FightStates
 {
@@ -13,11 +14,20 @@ namespace Model.Sources.Model.StateMachine.States.FightStates
 
         private readonly Timer _timer = new Timer();
 
-        public StickmanAttackState(Stickman model, Func<IEnumerable<Stickman>> enemiesAlive, Preferences preferences, int animationHash)
+        private readonly AudioSource _audioSource;
+        private readonly AudioClip _punchSound;
+
+        public StickmanAttackState(Stickman model,
+                                   Func<IEnumerable<Stickman>> enemiesAlive,
+                                   Preferences preferences,
+                                   AudioSource audioSource,
+                                   int animationHash)
             : base(model, enemiesAlive, animationHash)
         {
             _damage = preferences.Damage;
             _timeBetweenAttacks = preferences.TimeBetweenAttacks;
+            _audioSource = audioSource;
+            _punchSound = preferences.PunchSound;
         }
 
         public override void Tick(float deltaTime, StickmanStateMachine stateMachine)
@@ -25,12 +35,17 @@ namespace Model.Sources.Model.StateMachine.States.FightStates
             base.Tick(deltaTime, stateMachine);
 
             if (_timer.IsOver)
-            {
-                ClosestEnemy.TakeDamage(_damage);
-                _timer.Start(_timeBetweenAttacks);
-            }
+                Punch();
 
             _timer.Tick(deltaTime);
+        }
+
+        private void Punch()
+        {
+            ClosestEnemy.TakeDamage(_damage);
+
+            _audioSource.PlayOneShot(_punchSound);
+            _timer.Start(_timeBetweenAttacks);
         }
 
         protected override void CheckTransitions(StickmanStateMachine stateMachine)
@@ -46,6 +61,7 @@ namespace Model.Sources.Model.StateMachine.States.FightStates
         {
             public float Damage;
             public float TimeBetweenAttacks;
+            public AudioClip PunchSound;
         }
 
     }
