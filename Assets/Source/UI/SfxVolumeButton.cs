@@ -66,10 +66,8 @@ namespace UI
                     yield return actions[i];
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() =>
+                GetEnumerator();
 
             private IEnumerable<Action> Values()
             {
