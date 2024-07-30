@@ -13,7 +13,7 @@ using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-    public class HordeCompositionRoot : CompositionRoot
+    public class HordeCompositionRoot : BaseCompositionRoot
     {
         [Header("Input")]
         [SerializeField] private InputSwipePanel _swipePanel;
@@ -31,13 +31,15 @@ namespace Sources.CompositeRoot
 
         private HordeInputRouter _inputRouter;
         private HordeViewChanger _viewChanger;
+        private StickmanHordeMovement _hordeMovement;
         private StickmanHorde _horde;
 
         public override void Compose()
         {
             _horde = new StickmanHorde(_allies.Player);
-            var hordeMovement = new StickmanHordeMovement(_horde);
-            _inputRouter = new HordeInputRouter(_swipePanel, _touchPanel, hordeMovement, _camera);
+
+            _hordeMovement = new StickmanHordeMovement(_horde);
+            _inputRouter = new HordeInputRouter(_swipePanel, _touchPanel, _hordeMovement, _camera);
             _viewChanger = new HordeViewChanger(_horde, _targetGroup, _allies.PlacedEntities).Initialize();
 
             foreach (var (movement, view) in _allies.PlacedEntities)
@@ -45,7 +47,7 @@ namespace Sources.CompositeRoot
                 view
                     .GameObject()
                     .OnTrigger(_pathFinishTrigger)
-                    .Do(() => _horde.Remove(movement));
+                    .Do(() => _hordeMovement.RemoveStickman(movement));
             }
         }
 
@@ -62,6 +64,7 @@ namespace Sources.CompositeRoot
         {
             _inputRouter.OnDisable();
             _viewChanger.OnDisable();
+            _hordeMovement.Dispose();
         }
     }
 }

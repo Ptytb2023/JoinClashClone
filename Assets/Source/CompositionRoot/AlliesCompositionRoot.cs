@@ -20,7 +20,7 @@ using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-    public class AlliesCompositionRoot : CompositionRoot
+    public class AlliesCompositionRoot : BaseCompositionRoot
     {
         [Header("Roots")]
         [SerializeField] private EnemiesCompositionRoot _enemiesRoot;
@@ -67,6 +67,9 @@ namespace Sources.CompositeRoot
         public IReadOnlyDictionary<StickmanMovement, PhysicsTransformableView> PlacedEntities => _placedEntities;
 
         public StickmanMovement Player { get; private set; }
+
+        public PhysicsTransformableView ViewOf(StickmanMovement stickman) =>
+            _placedEntities[stickman];
 
         private StickmanMovement Compose(PhysicsTransformableView view)
         {

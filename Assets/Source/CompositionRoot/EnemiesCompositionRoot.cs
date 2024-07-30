@@ -16,7 +16,7 @@ using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-    public class EnemiesCompositionRoot : CompositionRoot
+    public class EnemiesCompositionRoot : BaseCompositionRoot
     {
         [Header("Preferences")]
         [SerializeField] private float _health;

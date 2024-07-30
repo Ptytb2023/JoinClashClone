@@ -7,7 +7,7 @@ using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
 {
-	public class EnvironmentCompositionRoot : CompositionRoot
+	public class EnvironmentCompositionRoot : BaseCompositionRoot
 	{
 		[SerializeField] private Trigger[] _obstacles = Array.Empty<Trigger>();
 		
