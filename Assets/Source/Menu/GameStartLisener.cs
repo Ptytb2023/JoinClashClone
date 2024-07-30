@@ -23,6 +23,6 @@ namespace Menu
             _input.Begun -= stx => EnterGamplayState();
 
         private void EnterGamplayState() => 
-            _gameStateMachine.Enter<GameplayState>();
+            _gameStateMachine.Enter<GameplayStartState>();
     }
 }

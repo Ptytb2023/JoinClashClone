@@ -4,6 +4,7 @@ using GameStates.States;
 using SceneLoading;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 using Zenject;
 
 namespace Factories.GameStates
@@ -30,11 +31,11 @@ namespace Factories.GameStates
             {
                 new EnterLevelState(_levelScene, _sceneLoading),
                 new BootstarpState(_levelScene,_menu,_sceneLoading),
-                new GameplayState(_menu,_sceneLoading)
+                new GameplayStartState(_menu,_sceneLoading),
+                new GameplayState(),
+                new PauseState(),
             };
 
         }
-
-
     }
 }
