@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5451692421071388404}
-  - component: {fileID: 1947002901188219780}
+  - component: {fileID: 4852928256572105585}
   m_Layer: 0
   m_Name: FactoryGameState
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5841047481779814257}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1947002901188219780
+--- !u!114 &4852928256572105585
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,7 +41,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 369040334193665483}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48c7379e2c8ae434ea7aa459e2196b57, type: 3}
+  m_Script: {fileID: 11500000, guid: 94fb896d72c33d340bb68209f3f21509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _levelScene:
@@ -60,7 +60,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5841047481779814257}
   - component: {fileID: 7990058395726935268}
-  - component: {fileID: 5988671860295234046}
+  - component: {fileID: 8997646116471230183}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
   _monoInstallers:
-  - {fileID: 5988671860295234046}
+  - {fileID: 8997646116471230183}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
       _missingHandlerDefaultResponse: 2
       _requireStrictUnsubscribe: 0
       _defaultAsyncTickPriority: 1
---- !u!114 &5988671860295234046
+--- !u!114 &8997646116471230183
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2987495519875279689}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e95056b8724ee5148a760e03d050f29c, type: 3}
+  m_Script: {fileID: 11500000, guid: c5af04fa41e0d594a95e682f1efec27e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameStateMachineFactory: {fileID: 1947002901188219780}
+  _gameStateMachineFactory: {fileID: 4852928256572105585}

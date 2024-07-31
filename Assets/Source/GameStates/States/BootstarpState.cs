@@ -19,10 +19,10 @@ namespace GameStates.States
             _sceneLoading = sceneLoading;
         }
 
-        public void Enter()
+        public async void Enter()
         {
-            _sceneLoading.LoadAsync(_level);
-            _sceneLoading.LoadAsync(_menu);
+            await _sceneLoading.LoadAsync(_level);
+            await _sceneLoading.LoadAsync(_menu);
         }
 
         public void Exit()
