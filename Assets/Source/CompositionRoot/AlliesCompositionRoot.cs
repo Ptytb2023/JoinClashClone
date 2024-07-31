@@ -13,7 +13,6 @@ using Sources.CompositeRoot.Extensions;
 using Sources.CompositeRoot.Enemies;
 using Sources.View;
 using Sources.View.Extensions;
-using UnityEditor.Animations;
 using UnityEngine;
 using View.Sources.View.Broadcasters;
 
@@ -31,7 +30,7 @@ namespace Sources.CompositeRoot
 		[SerializeField] private EntityAttackState.Preferences _attackPreferences;
 		
 		[Header("Used assets")]
-		[SerializeField] private AnimatorController _controller;
+		[SerializeField] private RuntimeAnimatorController _controller;
 		[SerializeField] private CapsuleCollider _pickTriggerZonePrefab;
 
 		[Header("Scene")] 
