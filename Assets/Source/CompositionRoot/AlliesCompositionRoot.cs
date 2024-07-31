@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using Model;
 using Model.Components;
-using Model.Obstacles;
 using Model.Physics;
+using Model.Sources.Model.Movement;
 using Model.Sources.Model.StateMachine.States.FightStates;
 using Model.Sources.Model.StateMachine.States.Movement;
 using Model.StateMachine;
@@ -12,6 +10,7 @@ using Model.StateMachine.States;
 using Model.Stickmen;
 using Sources.CompositeRoot.Base;
 using Sources.CompositeRoot.Extensions;
+using Sources.CompositeRoot.Enemies;
 using Sources.View;
 using Sources.View.Extensions;
 using UnityEditor.Animations;
@@ -19,104 +18,97 @@ using UnityEngine;
 using View.Sources.View.Broadcasters;
 
 namespace Sources.CompositeRoot
-{
-    public class AlliesCompositionRoot : BaseCompositionRoot
+{	
+	public class AlliesCompositionRoot : BaseCompositionRoot
     {
-        [Header("Roots")]
-        [SerializeField] private EnemiesCompositionRoot _enemiesRoot;
+		[Header("Roots")] 
+		[SerializeField] private EnemiesCompositionRoot _enemiesRoot;
+		
+		[Header("Preferences")]
+		[SerializeField] private float _distanceBetweenBounds;
+		[SerializeField] private float _health;
+		[SerializeField] private EntityChargeState.Preferences _chargePreferences;
+		[SerializeField] private EntityAttackState.Preferences _attackPreferences;
+		
+		[Header("Used assets")]
+		[SerializeField] private AnimatorController _controller;
+		[SerializeField] private CapsuleCollider _pickTriggerZonePrefab;
 
-        [Header("Preferences")]
-        [SerializeField] private float _distanceBetweenBounds;
-        [SerializeField] private float _maxMovementSpeed;
-        [SerializeField] private float _accelerationTime;
-        [SerializeField] private float _health;
-        [SerializeField] private StickmanChargeState.Preferences _chargePreferences;
-        [SerializeField] private StickmanAttackState.Preferences _attackPreferences;
+		[Header("Scene")] 
+		[SerializeField] private EventTrigger _pathFinishTrigger;
 
-        [Header("Used assets")]
-        [SerializeField] private AnimatorController _controller;
-        [SerializeField] private CapsuleCollider _pickTriggerZonePrefab;
+		[Header("Audio")] 
+		[SerializeField] private AudioClip _pickSound;
+		[SerializeField] private AudioClip _deathSound;
 
-        [Header("Audio")]
-        [SerializeField] private AudioClip _pickSound;
-        [SerializeField] private AudioClip _deathSound;
+		[Header("Views")]
+		[SerializeField] private PhysicsTransformableView _playerView;
+		[SerializeField] private PhysicsTransformableView[] _otherViews = Array.Empty<PhysicsTransformableView>();
 
-        [Header("Scene")]
-        [SerializeField] private EventTrigger _pathFinishTrigger;
+		private Dictionary<StickmanMovement, PhysicsTransformableView> _placedEntities;
 
-        [Header("Views")]
-        [SerializeField] private PhysicsTransformableView _playerView;
-        [SerializeField] private PhysicsTransformableView[] _otherViews = Array.Empty<PhysicsTransformableView>();
+		public override void Compose()
+		{
+			_placedEntities = new Dictionary<StickmanMovement, PhysicsTransformableView>(_otherViews.Length);
+			
+			Player = Compose(_playerView);
+			_placedEntities.Add(Player, _playerView);
 
-        private Dictionary<StickmanMovement, PhysicsTransformableView> _placedEntities;
+			foreach (PhysicsTransformableView view in _otherViews)
+			{
+				StickmanMovement movement = Compose(view);
+				_placedEntities.Add(movement, view);
+			}
+		}
 
-        public override void Compose()
-        {
-            _placedEntities = new Dictionary<StickmanMovement, PhysicsTransformableView>(_otherViews.Length);
+		public IReadOnlyDictionary<StickmanMovement, PhysicsTransformableView> PlacedEntities => _placedEntities;
 
-            Player = Compose(_playerView);
-            _placedEntities.Add(Player, _playerView);
+		public StickmanMovement Player { get; private set; }
 
-            foreach (PhysicsTransformableView view in _otherViews)
-            {
-                StickmanMovement movement = Compose(view);
-                _placedEntities.Add(movement, view);
-            }
-        }
+		public PhysicsTransformableView ViewOf(StickmanMovement stickman) => 
+			_placedEntities[stickman];
 
-        public IReadOnlyDictionary<StickmanMovement, PhysicsTransformableView> PlacedEntities => _placedEntities;
+		private StickmanMovement Compose(PhysicsTransformableView view)
+		{
+			var health = new Health(_health);
+			var model = new Entity(health, view.transform.position, view.transform.rotation);
+			var inertialMovement = new InertialMovement(new IMovementStatsProvider.None());
+			var surfaceSliding = new SurfaceSliding();
+			var movement = new StickmanMovement(model, surfaceSliding, inertialMovement, _distanceBetweenBounds);
 
-        public StickmanMovement Player { get; private set; }
+			view
+				.Initialize(model)
+				.AddComponent<CollisionBroadcaster>()
+				.Initialize(surfaceSliding)
+				.RequireComponent<Animator>(out var animator)
+				.BindController(_controller)
+				.RequireComponent<AudioSource>(out var audioSource)
+				.GameObject()
+				.AddComponent<TickBroadcaster>()
+				.InitializeAs(new EntityStateMachine(animator, new EntityState[]
+				{
+					new EntityWaitState(EntityAnimatorParameters.Idle),
+					new EntityIdleState(movement, EntityAnimatorParameters.Idle),
+					new EntityRunState(movement, EntityAnimatorParameters.IsRunning),
+					new EntityChargeState(model, _enemiesRoot.Entities, _chargePreferences, EntityAnimatorParameters.Charge),
+					new EntityAttackState(model, _enemiesRoot.Entities, _attackPreferences, audioSource, EntityAnimatorParameters.IsPunching),
+					new EntityDeathState(audioSource, _deathSound, EntityAnimatorParameters.IsDead),
+					new EntityVictoryState(EntityAnimatorParameters.Won)
+				}), out var stateMachine)
+				.ContinueWith(stateMachine.Enter<EntityIdleState>)
+				.Append(_pickTriggerZonePrefab)
+				.GoToParent()
+				.AddComponent<Trigger>()
+				.Between<StickmanMovement, (StickmanHorde, StickmanMovement)>(movement, handler =>
+				{
+					handler.Item1.Add(movement);
+					audioSource.PlayOneShot(_pickSound);
+				})
+				.OnTrigger(_pathFinishTrigger)
+				.Do(stateMachine.Enter<EntityChargeState>)
+				.ContinueWith(() => model.Died += stateMachine.Enter<EntityDeathState>);
 
-        public PhysicsTransformableView ViewOf(StickmanMovement stickman) =>
-            _placedEntities[stickman];
-
-        private StickmanMovement Compose(PhysicsTransformableView view)
-        {
-            var health = new Health(_health);
-            var model = new Stickman(health, view.transform.position, view.transform.rotation);
-            var inertialMovement = new InertialMovement(_maxMovementSpeed, _accelerationTime);
-            var surfaceSliding = new SurfaceSliding();
-            var movement = new StickmanMovement(model, surfaceSliding, inertialMovement, _distanceBetweenBounds);
-
-            view
-                .Initialize(model)
-                .AddComponent<CollisionBroadcaster>()
-                .Initialize(surfaceSliding)
-                .RequireComponent<Animator>(out var animator)
-                .BindController(_controller)
-                .RequireComponent<AudioSource>(out var audioSource)
-                .GameObject()
-                .AddComponent<TickBroadcaster>()
-                .InitializeAs(new StickmanStateMachine(animator, CreatStates(model, movement, audioSource)), out var stateMachine)
-                .ContinueWith(stateMachine.Enter<StickmanIdleState>)
-                .Append(_pickTriggerZonePrefab)
-                .GoToParent()
-                .AddComponent<Trigger>()
-                .Between<StickmanMovement, (StickmanHorde, StickmanMovement)>(movement, handler =>
-                {
-                    handler.Item1.Add(movement);
-                    audioSource.PlayOneShot(_pickSound);
-                })
-                .OnTrigger(_pathFinishTrigger)
-                .Do(stateMachine.Enter<StickmanChargeState>)
-                .ContinueWith(() => model.Died += stateMachine.Enter<StickmanDeathState>);
-
-            return movement;
-        }
-
-        private StickmanState[] CreatStates(Stickman model, StickmanMovement movement, AudioSource audioSource)
-        {
-            return new StickmanState[]
-                            {
-                    new StickmanWaitState(StickmanAnimatorParameters.Idle),
-                    new StickmanIdleState(movement, StickmanAnimatorParameters.Idle),
-                    new StickmanRunState(movement, StickmanAnimatorParameters.IsRunning),
-                    new StickmanChargeState(model, _enemiesRoot.Entities, _chargePreferences, StickmanAnimatorParameters.Charge),
-                    new StickmanAttackState(model, _enemiesRoot.Entities, _attackPreferences, audioSource, StickmanAnimatorParameters.IsPunching),
-                    new StickmanDeathState(audioSource,_deathSound,StickmanAnimatorParameters.IsDead),
-                    new StickmanVictoryState(StickmanAnimatorParameters.Won)
-                            };
-        }
-    }
+			return movement;
+		}
+	}
 }
