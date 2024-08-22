@@ -23,7 +23,6 @@ namespace Input.Stickmen
 
 		public void OnEnable()
 		{
-			_swipePanel.SwipeBegun += BeginAdjustHorizontalMovement;
 			_swipePanel.Swiping += AdjustHorizontalMovement;
 
 			_touchPanel.Holding += Accelerate;
@@ -32,7 +31,6 @@ namespace Input.Stickmen
 
 		public void OnDisable()
 		{
-			_swipePanel.SwipeBegun -= BeginAdjustHorizontalMovement;
 			_swipePanel.Swiping -= AdjustHorizontalMovement;
 			
 			_touchPanel.Holding -= Accelerate;
@@ -48,11 +46,7 @@ namespace Input.Stickmen
 		{
 			_movement.Slowdown(Time.deltaTime);			
 		}
-
-		private void BeginAdjustHorizontalMovement(Swipe swipe)
-		{
-			_movement.StartMovingRight();
-		}
+		
 
 		private void AdjustHorizontalMovement(Swipe swipe)
 		{
