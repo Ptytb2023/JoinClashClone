@@ -96,7 +96,7 @@ namespace Model.Stickmen
 		{
 			_stickmanMovements.Add(stickman);
 
-			stickman.StartMovingRight();
+			StartMovingRight();
 			stickman.Bind(_inertialMovement);
 		}
 
